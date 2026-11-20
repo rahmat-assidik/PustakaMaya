@@ -183,6 +183,23 @@ Get implementation-specific best practices for the user's stack:
 python3 .agents/skills/ui-ux-pro-max/scripts/search.py "<keyword>" --stack <stack>
 ```
 
+For this project, use the `shadcn` stack when implementing web UI:
+
+```bash
+python3 .agents/skills/ui-ux-pro-max/scripts/search.py "<keyword>" --stack shadcn
+```
+
+### shadcn/ui Implementation Rules
+
+- Treat shadcn/ui as the project's component system, not a visual style. Apply the selected design system through its semantic tokens, component variants, and layout composition.
+- Before building UI, inspect `package.json`, `components.json`, the configured UI component directory, and existing utilities. Follow the installed shadcn/ui version, aliases, styling conventions, and primitive library; do not assume every component or optional dependency is present.
+- Prefer existing shadcn/ui components and project wrappers. Compose their documented APIs and variants before creating custom controls; add custom components only when the existing primitives do not fit the interaction or domain.
+- Use semantic theme tokens such as `background`, `foreground`, `muted`, `border`, and `ring` instead of hardcoded colors. Keep custom styling compatible with the project's light/dark theme and existing CSS variables.
+- Preserve the accessibility behavior of the configured primitives. Use their supported keyboard, focus, labeling, disabled, and open/selected-state APIs instead of replacing them with non-semantic elements.
+- Reuse the project's `cn`/class-merging helper and established class conventions when available. Do not introduce a second component framework or install packages as part of this skill.
+- Use `lucide-react` for icons when it is already available, matching shadcn/ui's usual icon style. Prefer the project's existing icon library if one is configured; do not add another icon dependency just for a new screen.
+- If shadcn/ui is requested but not configured in the project, report what is missing rather than presenting hand-built controls as shadcn/ui components.
+
 Example for a known React Native implementation concern:
 
 ```bash
@@ -316,14 +333,12 @@ Scope notice: The rules below are for App UI (iOS/Android/React Native/Flutter),
 
 ### Icons & Visual Elements
 
-- 默认图标库使用 **Phosphor (`@phosphor-icons/react`)**。`src/ui-ux-pro-max/data/icons.csv` 中列出的只是常用推荐图标，不是完整集合。
-- 当推荐表中找不到合适的图标时：
-  - **优先继续从 Phosphor 的完整图标集中选择任何语义更贴切的图标**；
-  - 如果 Phosphor 也没有理想选项，可以使用 **Heroicons (`@heroicons/react`)** 作为备选，注意保持风格一致（线性/填充、笔画粗细、圆角风格）。
+- Follow the icon library already configured by the project. For shadcn/ui projects, use **Lucide (`lucide-react`)** when available; do not add a competing icon library just for a screen.
+- If the preferred library has no suitable icon, choose a semantically accurate icon from an already-installed alternative and keep stroke, size, and style consistent.
 
 | Rule | Standard | Avoid | Why It Matters |
 |------|----------|--------|----------------|
-| **No Emoji as Structural Icons** | Use vector-based icons (e.g., Phosphor `@phosphor-icons/react`, Heroicons `@heroicons/react`, react-native-vector-icons, @expo/vector-icons). | Using emojis (🎨 🚀 ⚙️) for navigation, settings, or system controls. | Emojis are font-dependent, inconsistent across platforms, and cannot be controlled via design tokens. |
+| **No Emoji as Structural Icons** | Use vector-based icons (e.g., Lucide `lucide-react`, Phosphor `@phosphor-icons/react`, Heroicons `@heroicons/react`, react-native-vector-icons, @expo/vector-icons) from the project's configured library. | Using emojis (🎨 🚀 ⚙️) for navigation, settings, or system controls. | Emojis are font-dependent, inconsistent across platforms, and cannot be controlled via design tokens. |
 | **Vector-Only Assets** | Use SVG or platform vector icons that scale cleanly and support theming. | Raster PNG icons that blur or pixelate. | Ensures scalability, crisp rendering, and dark/light mode adaptability. |
 | **Contextual Semantics** | Choose semantics from use, not glyph: use `aria-hidden="true"` for decorative icons beside visible text; give meaningful standalone icons a text alternative; give icon controls an accessible name and expose selected/pressed/expanded state when applicable. | Treating one icon name as permanently decorative, meaningful, or interactive. | The same glyph can serve different purposes in different components. |
 | **Stable Interaction States** | Use color, opacity, or elevation transitions for press states without changing layout bounds. | Layout-shifting transforms that move surrounding content or trigger visual jitter. | Prevents unstable interactions and preserves smooth motion/perceived quality on mobile. |
